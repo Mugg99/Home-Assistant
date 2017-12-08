@@ -1,0 +1,438 @@
+
+# ------------------------------------------------------------------#
+# FRONT LIGHTS
+# ------------------------------------------------------------------#      
+  - alias: 'Front lights automation'
+    hide_entity: False
+    trigger:
+      - platform: sun                   # Night ON 30 minute before sunset
+        event: sunset
+        #offset: '-00:30:00'         
+      - platform: time                  # Morning ON at 4:45 AM
+        at: '04:45:00'    
+      - platform: time                  # Night OFF at 11:45 PM
+        at: '23:45:00'    
+      - platform: sun                   # Morning OFF 15 minutes after sunrise
+        event: sunrise
+        offset: '00:15:00'         
+    action:     
+      service: homeassistant.turn_on
+      data_template: 
+        entity_id: >-  
+          {%- if now().hour == 4 or (now().hour > 15 and now().hour < 23) %}
+          scene.Front_Lights_On
+          {%- else %}
+          scene.Front_Lights_Off
+          {%- endif %}
+            
+
+# ------------------------------------------------------------------#
+# Christmas LIGHTS
+# ------------------------------------------------------------------#      
+  - alias: 'Christmas lights automation'
+    hide_entity: False
+    trigger:      
+      - platform: time                  # Morning ON at 4:45 AM
+        at: '04:45:00'    
+      - platform: time                  # Night OFF at 11:45 PM
+        at: '23:45:00'    
+    action:     
+      service: homeassistant.turn_on
+      data_template: 
+        entity_id: >-  
+          {%- if now().hour >= 4 and now().hour <= 23 %}
+          scene.Christmas_Lights_On
+          {%- else %}
+          scene.Christmas_Lights_Off
+          {%- endif %}
+          
+            
+# ------------------------------------------------------------------#
+# KITCHEN MOTION - SN 1
+# ------------------------------------------------------------------#
+  - alias: 'Kitchen motion ON'
+    hide_entity: False
+    trigger:
+      - platform: state
+        entity_id: sensor.sn1_pir
+        to: 'motion detected'    
+    condition:
+      condition: state
+      entity_id: input_boolean.kitchen_manual
+      state: 'off'       
+    action:
+      - service: homeassistant.turn_on
+        entity_id: input_boolean.kitchen_motion
+      - service: homeassistant.turn_on
+        entity_id: light.sn1_led
+        data:
+          rgb_color: [0, 255, 0]
+          brightness: 75  
+      - service: homeassistant.turn_on
+        data_template:
+          entity_id: light.kitchen_cabinets_level                       # Set brightness lower between 10pm and 6am
+          brightness: >
+            {%- if now().hour > 21 or now().hour < 6 %} 
+            20
+            {% else %}
+            40
+            {%- endif %}     
+          transition: 5  
+
+  # Turn OFF kitchen cabinet lights when in motion standby for x minutes.
+  - alias: 'Turn off Kitchen cabinets in standby'
+    hide_entity: False
+    trigger:
+      platform: state
+      entity_id: sensor.sn1_pir
+      to: 'standby'
+      for: 
+        minutes: 3
+    condition:
+      condition: state
+      entity_id: input_boolean.kitchen_manual
+      state: 'off'         
+    action:
+      service: homeassistant.turn_off
+      entity_id: 
+        - input_boolean.kitchen_manual 
+        - input_boolean.kitchen_motion
+        - light.kitchen_cabinets_level
+        
+        
+        
+  # Turn OFF kitchen cabinet lights when in manual standby for x minutes.
+  - alias: 'Turn off Kitchen cabinets in standby'
+    hide_entity: False
+    trigger:
+      platform: state
+      entity_id: input_boolean.kitchen_manual
+      to: 'on'
+      for: 
+        minutes: 30  
+    action:
+      service: homeassistant.turn_off
+      entity_id: 
+        - input_boolean.kitchen_manual 
+        - input_boolean.kitchen_motion
+        - light.kitchen_cabinets_level 
+        
+        
+  # Turn OFF LED indicator when in standby.
+  - alias: 'sensor_node_1_standby_LED'
+    hide_entity: False
+    trigger:
+      platform: state
+      entity_id: sensor.sn1_pir
+      to: 'standby'         
+    action:
+      service: light.turn_off
+      entity_id: light.sn1_led    
+
+
+  # Turn OFF kitchen lights.  Used to clear the motion detected piece if someone manually turns the lights off.
+  - alias: 'Turn off Kitchen cabinets'
+    hide_entity: False
+    trigger:
+      platform: state
+      entity_id: light.kitchen_cabinets_level
+      to: 'off'      
+    action:
+      service: homeassistant.turn_off
+      entity_id:   
+        - input_boolean.kitchen_manual   
+        - input_boolean.kitchen_motion
+
+
+  # Turn ON kitchen lights manually.  
+  - alias: 'Turn on Kitchen cabinets'
+    hide_entity: False
+    trigger:
+      platform: state
+      entity_id: light.kitchen_cabinets_level
+      to: 'on'       
+    condition:
+      condition: state
+      entity_id: sensor.sn1_pir
+      state: 'standby' 
+      for:
+        seconds: 5
+    action:
+      service: homeassistant.turn_on
+      entity_id: 
+        - input_boolean.kitchen_manual
+
+
+# Turn OFF kitchen ceiling lights when in manual standby for x minutes.
+  - alias: 'Turn off Kitchen ceiling in standby'
+    hide_entity: False
+    trigger:
+      platform: state
+      entity_id: light.kitchen_ceiling_level 
+      to: 'on'
+      for: 
+        minutes: 60  
+    action:
+      service: homeassistant.turn_off
+      entity_id: 
+        - light.kitchen_ceiling_level 
+
+
+# Turn OFF patio fan and light when in manual standby for x minutes.
+  - alias: 'Turn off patio fan and light in standby'
+    hide_entity: False
+    trigger:
+      platform: state
+      entity_id: switch.patio_switch 
+      to: 'on'
+      for: 
+        minutes: 30  
+    action:
+      service: homeassistant.turn_off
+      entity_id: 
+        - switch.patio_switch 
+
+
+
+      
+      
+      
+
+# ------------------------------------------------------------------#
+# WASHER / LAUNDRY ROOM
+# ------------------------------------------------------------------#    
+  # Laundry room light turned on
+  - id: 'laundry_light_on'
+    alias: 'Laundry Light ON'
+    trigger:
+      platform: state
+      entity_id: switch.laundry_light_switch
+      to: 'on'
+    action:
+      service: light.turn_off
+      entity_id: light.sn1_led   
+      
+  
+  # Washer is currently running  
+  - id: 'washer_running'
+    alias: 'Washer Running'
+    trigger:
+      platform: state
+      entity_id: binary_sensor.washing_machine
+      to: 'on'
+    action:
+      - service: input_select.select_option
+        data:
+          entity_id: input_select.washer_status
+          option: Running          
+          
+  # Washer has completed (light switch hasnt been turned on) (with reminders)
+  - id: 'washer_complete'
+    alias: 'Washer Complete'
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.washing_machine
+        to: 'off'
+        for: 
+          minutes: 2    
+      - platform: state
+        entity_id: binary_sensor.washing_machine
+        to: 'off'
+        for: 
+          minutes: 10     
+      - platform: state
+        entity_id: binary_sensor.washing_machine
+        to: 'off'
+        for: 
+          minutes: 20     
+      - platform: state
+        entity_id: binary_sensor.washing_machine
+        to: 'off'
+        for: 
+          minutes: 30     
+      - platform: state
+        entity_id: binary_sensor.washing_machine
+        to: 'off'
+        for: 
+          minutes: 60     
+    condition:
+      condition: template
+      value_template: '{% if ((((as_timestamp(states.binary_sensor.washing_machine.last_changed)) - (as_timestamp(states.automation.laundry_light_on.last_changed))))) | int > 0%} true {%else%} false {%endif %}'
+    action:
+      - service: input_select.select_option
+        data:
+          entity_id: input_select.washer_status
+          option: Complete
+      - service: script.turn_on
+        entity_id: script.test 
+        
+         
+  # Washer idle (light switched on, and the washer was already in complete status)
+  - id: 'washer_idle'
+    alias: 'Washer Idle'
+    trigger:
+      platform: state
+      entity_id: switch.laundry_light_switch
+      to: 'on'   
+    condition:
+      condition: template
+      value_template: '{% if is_state("input_select.washer_status", "Complete") %} true {%else%} false {%endif %}'   
+    action:
+      - service: input_select.select_option
+        data:
+          entity_id: input_select.washer_status
+          option: Idle
+        
+         
+  # Washer and WeMo are off 
+  - id: 'washer_off'
+    alias: 'Washer Off'
+    trigger:
+      - entity_id: switch.wemo_washer
+        platform: state
+        to: 'off'
+    condition:
+      - condition: state
+        entity_id: 'switch.wemo_washer'
+        state: 'off'
+    action:
+      - service: input_select.select_option
+        data:
+          entity_id: input_select.washer_status
+          option: Powered Off
+          
+          
+           
+          
+          
+          
+          
+          
+          
+          
+          
+  # Turn OFF front lights
+#  - alias: 'Front lights OFF'
+#    hide_entity: False
+#    trigger:
+#      - platform: time
+#        at: "23:45:00"    
+#      - platform: sun
+#        event: sunrise
+#        offset: "00:15:00"     
+#    action:
+#      service: light.turn_off
+#      entity_id: 
+#        - light.driveway_far
+#        - light.driveway_near
+#        - light.driveway_porch      
+      
+      
+      
+   
+      
+
+#  - alias: 'Kitchen Night'
+#    #initial_state: False
+#    hide_entity: False
+#    trigger:
+#      platform: state
+#      entity_id: light.kitchen_ceiling_level
+#      to: 'on'   
+#    condition:    
+#      - condition: time
+#        after: '23:00:00'
+#        before: '06:00:00'        
+#    action:
+#      service: light.turn_on
+#      data:
+#        entity_id: light.kitchen_ceiling_level
+#        brightness: 75   
+#        transition: 3        
+        
+      
+      
+#    action:
+#      service: script.turn_on
+#      entity_id: script.notification_john_text
+
+      
+      #for:
+        #seconds: 5
+        
+#    condition:    
+#      - condition: time
+#        after: '07:15:00'
+#        before: '11:15:00'   
+       
+
+        
+
+
+  #  - delay: 00:02:00
+  #  - service: scene.turn_on
+  #    entity_id: scene.sunset_dimmed    
+
+    #delay: '{{ (range(0, 2)|random|int) }}:{{ (range(1, 59)|random|int) }}:00'
+ 
+      
+
+
+
+
+
+
+# ------------------------------------------------------------------#
+# SENSOR NODE 2
+# ------------------------------------------------------------------#
+      
+  # Turn ON kitchen lights when motion is detected DAY
+  - alias: 'sensor_node_2_motion2'
+    hide_entity: False
+    trigger:
+      platform: state
+      entity_id: sensor.sn2_pir
+      to: 'motion detected'   
+    #condition:    
+    #  condition: time
+    #  after: '07:00:00'
+    #  before: '21:00:00'        
+    action:
+      - service: light.turn_on
+        entity_id: light.sn2_led
+        data:
+          brightness: 125       
+          rgb_color: [255, 0, 0]
+     # - service: light.turn_on
+     #   entity_id: light.kitchen_ceiling_level
+     #   data:
+     #     brightness: 255         
+     #     transition: 5  
+          
+        
+  # Turn OFF LED indicator when in standby.
+  - alias: 'sensor_node_2_standby_LED'
+    hide_entity: False
+    trigger:
+      platform: state
+      entity_id: sensor.sn2_pir
+      to: 'standby'   
+    #condition:    
+    #  - condition: time
+    #    after: '11:00:00'
+    #    before: '06:00:00'        
+    action:
+      service: light.turn_off
+      entity_id: light.sn2_led          
+      
+#  # Testing    
+#  - alias: 'purge_db'
+#    trigger:
+#      platform: state
+#      entity_id: switch.laundry_light_switch
+#      to: 'on'  
+#    action:
+#      service: recorder.purge
+#      data:
+#        keep_days: 5
+      

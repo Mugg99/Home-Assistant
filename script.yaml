@@ -1,0 +1,68 @@
+notification_john_text: 
+  alias: Text Status To John 
+  sequence: 
+    - service: notify.notify_text_John 
+      data: 
+        message: Good{% if now().strftime("%H") | float > 17 %} Evening {% elif now().strftime("%H") | float > 12 %} afternoon {% else %} morning {% endif %}master.  The current time is {{ now().strftime("%l:%M %p") }}. Thermostat is currently {{ states("sensor.downstairs_temperature") }}.   Jill is currently {% if is_state('device_tracker.Jill', 'home') %}home{% else %}not home{% endif %}.
+notification_john_email: 
+  alias: Email Status To John 
+  sequence: 
+    - service: notify.notify_email_John 
+      data: 
+        message: Good{% if now().strftime("%H") | float > 17 %} Evening {% elif now().strftime("%H") | float > 12 %} afternoon {% else %} morning {% endif %}master.  The current time is {{ now().strftime("%l:%M %p") }}. Thermostat is currently {{ states("sensor.downstairs_temperature") }}.   Jill is currently {% if is_state('device_tracker.Jill', 'home') %}home{% else %}not home{% endif %}.
+movie:
+  alias: Movie
+  sequence:
+    - service: scene.turn_on
+      entity_id: scene.Movie_Time_1
+lights_on:
+  alias: Lights On
+  sequence:
+    - service: scene.turn_on
+      entity_id: scene.Lights_On
+lights_off:
+  alias: Lights Off
+  sequence:
+    - service: scene.turn_on
+      entity_id: scene.Lights_Off         
+test:
+  alias: Washer Complete
+  sequence:
+    - service: media_player.turn_on
+      entity_id: media_player.announcements  
+    - service: media_player.volume_set
+      data_template:
+        entity_id: media_player.announcements                       # Set sound lower between 10pm and 7am
+        volume_level: >
+          {%- if now().hour > 19 or now().hour < 6 %} 
+          0.5
+          {% else %}
+          0.9
+          {%- endif %}       
+    - service: tts.google_say
+      entity_id: media_player.announcements
+      data_template:
+        message: >
+          Wash cycle complete, enjoy the clean clothes!   
+
+          
+laundry_status:         
+  alias: Laundry Status 
+  sequence:
+    - service: media_player.turn_on
+      entity_id: media_player.announcements  
+    - service: media_player.volume_set
+      data_template:
+        entity_id: media_player.announcements                       # Set sound lower between 10pm and 7am
+        volume_level: >
+          {%- if now().hour > 19 or now().hour < 6 %} 
+          0.5
+          {% else %}
+          0.9
+          {%- endif %}       
+    - service: tts.google_say
+      entity_id: media_player.announcements
+      data_template:
+        message: The washer is currently {{ states.input_select.washer_status.state }}. {% if is_state("input_select.washer_status", "Running") %} It has been running for {{((as_timestamp(now()) - ((((as_timestamp(states.binary_sensor.washing_machine.last_changed)) )))) /60)  | int }} minutes. {% elif is_state("input_select.washer_status", "Complete") %} The laundry needs to be swapped. {% else %} It should be ready to load. {% endif %}
+        
+       

@@ -1,0 +1,12 @@
+sensor.kitchen_pir_1_sourcenodeid:
+  ignored: true
+  polling_intensity: 0
+sensor.kitchen_pir_1_alarm_type:
+  ignored: true
+  polling_intensity: 0
+binary_sensor.kitchen_pir_1_sensor:
+  ignored: true
+  polling_intensity: 0
+sensor.kitchen_pir_1_burglar:
+  ignored: false
+  polling_intensity: 2

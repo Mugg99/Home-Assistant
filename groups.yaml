@@ -1,0 +1,143 @@
+
+############################################     
+##                 VIEWS                  ##
+############################################   
+  
+  Kitchen_View:
+    name: Kitchen
+    view: yes
+    entities:
+      - group.Kitchen_Lights
+      - group.sensor_node_1_card
+      - group.sensor_node_2_card
+  
+  Laundry_View:
+    name: Laundry
+    view: yes
+    entities:
+      group.Laundry
+  
+  Living_Room_View:
+    name: Living Room
+    view: yes
+    entities:
+      group.Living_Room_Lights
+
+  Christmas_View:
+    name: Christmas
+    view: yes
+    entities:
+      - group.Christmas_Lights  
+      - group.Holiday_Lights 
+      - group.Front_Lights   
+      - group.Front_Scripts      
+      
+  Automation:
+    name: Automation
+    view: true
+    entities:
+      - group.all_automations
+      - group.all_automation
+      - group.all_scene
+      - group.all_scenes
+      - group.all_devices
+      - group.all_lights
+      - group.all_scripts
+      - group.all_script
+      - group.all_switches
+      - group.all_switch
+    
+    
+############################################     
+##               GROUPS                  ##
+############################################   
+      
+  Living_Room_Lights: 
+    name: Living Room Lights
+    view: no
+    entities: 
+      - light.hue_white_lamp_1
+      - light.hue_white_lamp_2
+      - light.living_room_ceiling_level
+      
+  Kitchen_Lights: 
+    name: Kitchen Lights
+    view: no
+    entities: 
+      - light.kitchen_ceiling_level 
+      - light.kitchen_cabinets_level
+      - input_boolean.kitchen_motion   
+      - input_boolean.kitchen_manual     
+      - sensor.kitchen_pir_1_burglar
+
+  all_lights: 
+    name: All Lights
+    view: no
+    entities: 
+      - light.hue_white_lamp_1
+      - light.hue_white_lamp_2
+      - light.living_room_ceiling_level 
+      - light.kitchen_ceiling_level        
+      - light.kitchen_cabinets_level_level    
+      - switch.patio_switch
+
+  sensor_node_1_card:  
+    name: Sensor Node 1  
+    entities:  
+     # - sensor.sn1_ldr  
+      - sensor.sn1_pir  
+      - light.sn1_led
+
+  sensor_node_2_card:  
+    name: Sensor Node 2  
+    entities:  
+     # - sensor.sn2_ldr  
+      - sensor.sn2_pir  
+      - light.sn2_led
+      - sensor.sn2_btn1
+
+  Front_Lights:  
+    name: Front Lights  
+    entities:  
+      - switch.front_switch_switch
+      - light.driveway_far
+      - light.driveway_near  
+      - light.driveway_porch
+
+  Holiday_Lights:  
+    name: Holiday Lights  
+    entities:  
+      - switch.outside_outlet_1_switch
+      - switch.outside_outlet_2_switch
+      
+  Christmas_Lights:
+    name: Christmas Lights
+    entities:
+      - switch.outlet_1_switch    
+      - switch.outlet_2_switch    
+      - switch.outlet_3_switch    
+      - switch.outlet_4_switch    
+  
+  Front_Scripts:
+    name: Front Lights Scripts & Automations
+    entities:     
+      - automation.Christmas_Lights_On    
+      - scene.Christmas_Lights_On      
+      - scene.Christmas_Lights_Off 
+  
+  Laundry:
+    name: Laundry Room
+    entities:
+      - switch.laundry_light_switch
+      - switch.wemo_washer
+      - input_select.washer_status
+      - sensor.washer_current_power
+      - sensor.washer_watts
+      - binary_sensor.washing_machine
+     
+     
+     
+  
+  
+  
+  

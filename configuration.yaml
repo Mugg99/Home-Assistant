@@ -1,0 +1,287 @@
+homeassistant:
+  # Name of the location where Home Assistant is running
+  name: Home
+  # Location required to calculate the time the sun rises and sets
+  latitude: !secret Location_Latitude 
+  longitude: !secret Location_Longitude
+  # Impacts weather/sunrise data (altitude above sea level in meters)
+  elevation: !secret Location_Elevation 
+  # metric for Metric, imperial for Imperial
+  unit_system: imperial
+  # Pick yours from here: http://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+  time_zone: !secret Location_Time_Zone
+  
+  customize: !include customize.yaml      
+       
+      
+# Show links to resources in log and frontend
+#introduction:
+
+# Enables the frontend
+frontend:
+
+# Enables configuration UI
+config:
+
+http:
+  # Uncomment this to add a password (recommended!)
+  # api_password: PASSWORD
+  # Uncomment this if you are using SSL or running in Docker etc
+  # base_url: example.duckdns.org:8123
+
+# Checks for available updates
+# Note: This component will send some information about your system to
+# the developers to assist with development of Home Assistant.
+# For more information, please see:
+# https://home-assistant.io/blog/2016/10/25/explaining-the-updater/
+#updater:
+  # Optional, allows Home Assistant developers to focus on popular components.
+  # include_used_components: true
+
+# Discover some devices automatically
+discovery:
+  ignore:
+    - plex_mediaserver
+    #- chromecast
+
+# Allows you to issue voice commands from the frontend in enabled browsers
+conversation:
+
+# View all events in a logbook
+logbook:
+
+# Track the sun
+sun:
+
+# Recorder options
+recorder:
+#  purge_interval: 2
+#  purge_keep_days: 2   
+  purge_days: 2
+  db_url: sqlite:///home/homeassistant/.homeassistant/home-assistant_v2.db   
+#  exclude:
+#    domains:
+#      - automation
+#      - weblink
+#      - updater
+      
+# Enables support for tracking state changes over time.
+history:
+
+      
+#sensor2: 
+#  - platform: wunderground
+#    api_key: !secret Weather_wunderground_Api_Key
+#    monitored_conditions:
+#      - alerts
+#      - temp_high_1d_f
+#      - temp_low1d_f
+#      - temp_f
+#      - temp_low1d_f
+#      - temp_low1d_f
+      
+# Text to speech
+tts:
+  platform: google
+
+group: !include groups.yaml
+automation: !include automations.yaml
+scene: !include scene.yaml
+script: !include script.yaml
+
+  
+zwave:
+  usb_path: /dev/zwave
+  network_key: !secret zwave_network_key
+  polling_interval: 10000
+  device_config:
+    # fix for polling time with GE dimmers
+    light.kitchen_ceiling_level: 
+      polling_intensity: 1
+      refresh_value: 2
+      delay: 3
+ 
+#zha:
+# usb_path: /dev/zigbee
+# database_path: /home/homeassistant/.homeassistant/zigbee.db
+ 
+# Send john a text
+notify:
+  - platform: smtp 
+    name: notify_text_John
+    server: smtp.gmail.com 
+    port: 587 
+    sender: !secret gmail_sender
+    starttls: 1 
+    username: !secret gmail_username
+    password: !secret gmail_password 
+    recipient: !secret text_address_john
+  - platform: smtp 
+    name: notify_text_Jill
+    server: smtp.gmail.com 
+    port: 587 
+    sender: !secret gmail_sender
+    starttls: 1 
+    username: !secret gmail_username
+    password: !secret gmail_password 
+    recipient: !secret text_address_jill
+  - platform: smtp 
+    name: notify_email_John
+    server: smtp.gmail.com 
+    port: 587 
+    sender: !secret gmail_sender
+    starttls: 1 
+    username: !secret gmail_username
+    password: !secret gmail_password 
+    recipient: !secret email_address_john
+    
+     
+        
+        
+      #- service: tts.google_say
+      #  entity_id: media_player.living_room_home
+      #  data:
+      #    message: "Sure.  Let's dim those lights a little"
+
+#scene:
+        
+ #alarm_control_panel:
+  #platform: alarmdotcom
+  #username: !secret alarm_username
+  #password: !secret alarm_password
+
+# WeMo
+wemo:
+  static:
+    - 192.168.1.79  
+  
+# Harmony information
+remote: 
+  - platform: harmony
+    name: Harmony_Hub
+    host: !secret harmony_ip  
+    
+# Device tracker / ddwrt information    
+#device_tracker:
+#   - platform: asuswrt
+#     host: !secret router_ip
+#     username: !secret router_username
+#     password: !secret router_password
+#     track_new_devices: false
+     
+# Google Home hue emulation
+emulated_hue:
+  host_ip: !secret hue_emulation_ip
+  listen_port: 80
+  off_maps_to_on_domains:
+  exposed_domains:
+    - light
+    - scene
+    - switch
+    - groups
+    - script
+ 
+     
+mqtt:
+  broker: !secret mqtt_ip
+  port: !secret mqtt_port
+  client_id: home-assistant-1
+  username: !secret mqtt_username
+  password: !secret mqtt_password  
+
+
+# Sensors
+sensor:
+  - platform: yr
+  - platform: mqtt  
+    state_topic: "home-assistant/sensornode1"  
+    name: "SN1 LDR"
+    ##This sensor is not calibrated to actual LUX. Rather, this a map of the input voltage ranging from 0 - 1023.
+    unit_of_measurement: "LUX"  
+    value_template: '{{ value_json.ldr }}'    
+  - platform: mqtt  
+    state_topic: "home-assistant/sensornode1"  
+    name: "SN1 PIR"  
+    value_template: '{{ value_json.motion }}'  
+  - platform: mqtt  
+    state_topic: "home-assistant/sensornode2"  
+    name: "SN2 LDR"
+    ##This sensor is not calibrated to actual LUX. Rather, this a map of the input voltage ranging from 0 - 1023.
+    unit_of_measurement: "LUX"  
+    value_template: '{{ value_json.ldr }}'    
+  - platform: mqtt  
+    state_topic: "home-assistant/sensornode2"  
+    name: "SN2 PIR"  
+    value_template: '{{ value_json.motion }}'  
+  - platform: mqtt  
+    state_topic: "home-assistant/sensornode2"  
+    name: "SN2 BTN1"  
+    value_template: '{{ value_json.button1 }}'  
+  - platform: mqtt  
+    state_topic: "home-assistant/sensornode2"  
+    name: "SN2 BTN2"  
+    value_template: '{{ value_json.button2 }}'  
+  - platform: template
+    sensors:
+      washer_watts:
+        unit_of_measurement: "w"
+        value_template: '{% if states.switch.wemo_washer %}{{ states.switch.wemo_washer.attributes.current_power_w }}{% else %}Off{% endif %}'
+  - platform: command_line
+    name: log_db_file_size
+    command: "du -m /home/homeassistant/.homeassistant/home-assistant_v2.db | cut -f1"
+    unit_of_measurement: 'MB'
+    value_template: '{{ value | int - 1 }}'
+        
+
+    
+light:  
+  - platform: mqtt_json  
+    name: "SN1 LED"  
+    state_topic: "home-assistant/sensornode1"  
+    command_topic: "home-assistant/sensornode1/set"  
+    brightness: true  
+    flash: true  
+    rgb: true  
+    optimistic: false  
+    qos: 0  
+  - platform: mqtt_json  
+    name: "SN2 LED"  
+    state_topic: "home-assistant/sensornode2"  
+    command_topic: "home-assistant/sensornode2/set"  
+    brightness: true  
+    flash: true  
+    rgb: true  
+    optimistic: false  
+    qos: 0  
+  
+input_boolean:
+  kitchen_motion:
+    name: Kitchen lights motion
+    initial: off
+    icon: mdi:cursor-move  
+  kitchen_manual:
+    name: Kitchen lights manual
+    initial: off
+    icon: mdi:cursor-move  
+  
+input_select:
+  washer_status:
+    name: 'Washer Status:'
+    options:
+      - Idle
+      - Running
+      - Complete
+      - Powered Off
+    initial: Powered Off
+    icon: mdi:washing-machine
+
+binary_sensor:
+  - platform: template 
+    sensors:
+      washing_machine:
+        value_template: "{{ states.switch.wemo_washer.attributes.current_power_w > 4 }}"    
+
+  
+  
+
+

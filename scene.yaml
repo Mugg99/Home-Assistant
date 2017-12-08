@@ -1,0 +1,135 @@
+ 
+
+  - name: Kitchen_Day_On
+    entities:
+      light.kitchen_ceiling_level:
+        state: on
+        brightness: 255
+        
+  - name: Kitchen_Night_On
+    entities:
+      light.kitchen_ceiling_level:
+        state: on
+        brightness: 75    
+        
+  - name: Kitchen_Off
+    entities:
+      light.kitchen_ceiling_level:
+        state: off
+        
+  - name: Front_Night_On
+    entities:
+      group.front_lights:
+        state: on
+        brightness: 255    
+        
+  - name: Front_Off
+    entities:
+      group.front_lights:
+        state: off        
+        
+        
+        
+        
+  - name: Movie_Time_1
+    entities:
+      light.hue_white_lamp_1:
+        state: on
+        transition: 2
+        brightness: 127
+      light.hue_white_lamp_2:
+        state: on
+        transition: 2
+        brightness: 127
+      light.living_room_ceiling_level:
+        state: on
+        transition: 2
+        brightness: 75
+
+  - name: Daytime
+    entities:
+      light.hue_white_lamp_1:
+        state: on
+        transition: 2
+        brightness: 255
+      light.hue_white_lamp_2:
+        state: on
+        transition: 2
+        brightness: 255
+      light.living_room_ceiling_level:
+        state: on
+        transition: 2
+        brightness: 255        
+
+  - name: Lights_On
+    entities:
+      light.hue_white_lamp_1:
+        state: on
+        transition: 2
+      light.hue_white_lamp_2:
+        state: on
+        transition: 2
+      light.living_room_ceiling_level:
+        state: on
+        transition: 2     
+
+  - name: Lights_Off
+    entities:
+      light.hue_white_lamp_1:
+        state: off
+        transition: 2
+      light.hue_white_lamp_2:
+        state: off
+        transition: 2
+      light.living_room_ceiling_level:
+        state: off
+        transition: 2  
+        
+        
+        
+        
+        
+  - name: Front_Lights_On
+    entities:
+      switch.front_switch_switch: on
+      light.driveway_porch:
+        state: on
+        rgb_color: [255,43,25]  
+        brightness: 255
+      light.driveway_near:
+        state: on
+        rgb_color: [73,255,66]  
+        brightness: 255
+      light.driveway_far:
+        state: on
+        rgb_color: [255,43,25]  
+        brightness: 255
+      switch.outside_outlet_1_switch: on
+      switch.outside_outlet_2_switch: on
+
+ 
+  - name: Front_Lights_Off
+    entities:
+      light.driveway_porch: off
+      light.driveway_near: off
+      light.driveway_far: off
+      switch.outside_outlet_1_switch: off
+      switch.outside_outlet_2_switch: off
+        
+        
+        
+        
+  - name: Christmas_Lights_On
+    entities:
+      switch.outlet_1_switch: on
+      switch.outlet_2_switch: on
+      switch.outlet_3_switch: on
+      switch.outlet_4_switch: on
+
+  - name: Christmas_Lights_Off
+    entities:
+      switch.outlet_1_switch: off
+      switch.outlet_2_switch: off
+      switch.outlet_3_switch: off
+      switch.outlet_4_switch: off
+      
